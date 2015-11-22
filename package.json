@@ -1,0 +1,65 @@
+{
+	"name": "SNRWN",
+	"description": "search'n'replace including newlines and tabs in your open file from VSCode commandline",
+	"version": "0.0.1",
+	"publisher": "Jens Mallien",
+	"engines": {
+		"vscode": "^0.10.1"
+	},
+	"categories": [
+		"Other"
+	],
+	"activationEvents": [
+		"onCommand:extension.searchNReplaceNormal",
+		"onCommand:extension.searchNReplaceCS",
+		"onCommand:extension.searchNReplaceWW",
+		"onCommand:extension.searchNReplaceR",
+		"extension.searchNReplaceCSWW",
+		"extension.searchNReplaceCSR",
+		"extension.searchNReplaceWWR",
+		"extension.searchNReplaceCSWWR"
+	],
+	"main": "./out/src/extension",
+	"contributes": {
+		"commands": [{
+			"command": "extension.searchNReplaceNormal",
+			"title": "search'n'replace normal"
+		},
+		{
+			"command": "extension.searchNReplaceCS",
+			"title": "search'n'replace case sensitive"
+		},
+		{
+			"command": "extension.searchNReplaceCSWW",
+			"title": "search'n'replace case sensitive and whole word"
+		},
+		{
+			"command": "extension.searchNReplaceCSR",
+			"title": "search'n'replace case sensitive and regex"
+		},
+		{
+			"command": "extension.searchNReplaceWW",
+			"title": "search'n'replace whole word"
+		},
+		{
+			"command": "extension.searchNReplaceWWR",
+			"title": "search'n'replace whole word and regex"
+		},
+		{
+			"command": "extension.searchNReplaceR",
+			"title": "search'n'replace regex"
+		},
+		{
+			"command": "extension.searchNReplaceCSWWR",
+			"title": "search'n'replace case sensitive, whole word and regex"
+		}]
+	},
+	"scripts": {
+		"vscode:prepublish": "node ./node_modules/vscode/bin/compile",
+		"compile": "node ./node_modules/vscode/bin/compile -watch -p ./"
+	},
+	"devDependencies": {
+		"typescript": "^1.6.2",
+		"vscode": "0.10.x"
+	}
+}
