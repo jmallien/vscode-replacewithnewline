@@ -23,35 +23,7 @@
 	"contributes": {
 		"commands": [{
 			"command": "extension.searchNReplaceNormal",
-			"title": "search'n'replace normal"
-		},
-		{
-			"command": "extension.searchNReplaceCS",
-			"title": "search'n'replace case sensitive"
-		},
-		{
-			"command": "extension.searchNReplaceCSWW",
-			"title": "search'n'replace case sensitive and whole word"
-		},
-		{
-			"command": "extension.searchNReplaceCSR",
-			"title": "search'n'replace case sensitive and regex"
-		},
-		{
-			"command": "extension.searchNReplaceWW",
-			"title": "search'n'replace whole word"
-		},
-		{
-			"command": "extension.searchNReplaceWWR",
-			"title": "search'n'replace whole word and regex"
-		},
-		{
-			"command": "extension.searchNReplaceR",
-			"title": "search'n'replace regex"
-		},
-		{
-			"command": "extension.searchNReplaceCSWWR",
-			"title": "search'n'replace case sensitive, whole word and regex"
+			"title": "search'n'replace with newline support"
 		}]
 	},
 	"scripts": {

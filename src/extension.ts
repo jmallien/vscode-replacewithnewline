@@ -7,6 +7,11 @@ interface UserInput {
   replace: string;
 }
 
+interface Replacement {
+  text: string;
+  count: number;
+}
+
 function getUserInput() {
 	var promise = new Promise(function(resolve, reject) {
 		// do a thing, possibly async, then…
@@ -43,8 +48,20 @@ function getUserInput() {
 	return promise;
 }
 
-function replaceAll(haystack, needle, replacementNeedle) {
-  return haystack.replace(new RegExp(escapeRegExp(needle), 'g'), replacementNeedle);
+function replaceAll(haystack: string, needle: string, replacementNeedle: string, caseMatters: boolean, wholeWords: boolean, isRegex: boolean): Replacement {
+  if(!isRegex) {
+	  needle = escapeRegExp(needle);
+  }
+  if(wholeWords) {
+	  needle = "\\b"+needle+"\\b";
+  }
+  
+  var regExFlags = caseMatters?'g':'ig';
+  
+  return {
+	  text: haystack.replace(new RegExp(needle, regExFlags), replacementNeedle),
+	  count: haystack.match(new RegExp(needle, regExFlags)).length || 0
+  }
 }
 
 function countMatches(haystack, needle) {
@@ -68,70 +85,80 @@ function escapeRegExp(str) {
 export function activate(context: vscode.ExtensionContext) {
 
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "SNRWN" is now active!'); 
-
+	console.log("search'n'replace with newline loaded!");
+	
+		var normalSearch: vscode.QuickPickItem = {label: "normal search", description: "finds 'foo' in 'xyzFoOabc'"};
+		var caseSensitiveSearch: vscode.QuickPickItem = {label: "case sensitive", description: "does not find 'foo' in 'xyzFoOabc' but in 'xyzfooabc'"};
+		var wholeWordsSearch: vscode.QuickPickItem = {label: "whole words", description: "does not find 'foo' in 'xyzFoOabc' but in 'xyz FoO abc'"};
+		var regexSearch: vscode.QuickPickItem = {label: "regex", description: "[a-z] finds all letters, even capitals"};
+		var caseSensitiveAndWholeWordsSearch: vscode.QuickPickItem = {label: "case sensitive and whole words", description: "same as whole words but case sensitive"};
+		var caseSensitiveAndRegexSearch: vscode.QuickPickItem = {label: "case sensitive and regex", description: "[a-z] finds only small letters"};
+		var wholeWordsAndRegexSearch: vscode.QuickPickItem = {label: "whole words and regex", description: "same as regex but surrounds it with \\b"};
+		var caseSensitiveWholeWordsRegexSearch: vscode.QuickPickItem = {label: "case sensitive, whole words and regex", description: "everything at once"};
+	
 	// The command has been defined in the package.json file
 	// Now provide the implementation of the command with  registerCommand
 	// The commandId parameter must match the command field in package.json
 	var disposable = vscode.commands.registerCommand('extension.searchNReplaceNormal', () => {
 		// The code you place here will be executed every time your command is executed
 
-		getUserInput().then(function(userInput: UserInput) {
-			vscode.window.showInformationMessage(userInput.search + " to " + userInput.replace);
-			// Display a message box to the user
-			var replacementString = userInput.replace.split("\\r").join("\r").split("\\n").join("\n").split("\\t").join("\t");
-			vscode.window.activeTextEditor.edit((editor: vscode.TextEditorEdit) => {
-				//get metainfos of document
-				var lineCount = vscode.window.activeTextEditor.document.lineCount;
-				var lastLine = vscode.window.activeTextEditor.document.lineAt(lineCount - 1);
-				var endOfLastLine = lastLine.range.end;
-				
-				//replace text
-				var textDocument = vscode.window.activeTextEditor.document.getText();
-				var replacementCount = countMatchesCaseInsensitive(textDocument, userInput.search);
-				var replacementDocument = replaceAllCaseInsensitive(textDocument, userInput.search, replacementString);
-				
-				//replce whole document
-				editor.replace(new vscode.Range(new vscode.Position(0, 0), new vscode.Position(endOfLastLine.line, endOfLastLine.character)), replacementDocument);
-				
-				//show info to user
-				vscode.window.showInformationMessage("replaced "+replacementCount);
-			});
-		});
-		
-		return;
-	});
-	
-	context.subscriptions.push(disposable);
-	
-	disposable = vscode.commands.registerCommand('extension.searchNReplaceCS', () => {
-		// The code you place here will be executed every time your command is executed
+		var actions = [
+			normalSearch,
+			caseSensitiveSearch,
+			wholeWordsSearch,
+			regexSearch,
+			caseSensitiveAndWholeWordsSearch,
+			caseSensitiveAndRegexSearch,
+			wholeWordsAndRegexSearch,
+			caseSensitiveWholeWordsRegexSearch
+		];
 
-		getUserInput().then(function(userInput: UserInput) {
-			vscode.window.showInformationMessage(userInput.search + " to " + userInput.replace);
-			// Display a message box to the user
-			var replacementString = userInput.replace.split("\\r").join("\r").split("\\n").join("\n").split("\\t").join("\t");
-			vscode.window.activeTextEditor.edit((editor: vscode.TextEditorEdit) => {
-				//get metainfos of document
-				var lineCount = vscode.window.activeTextEditor.document.lineCount;
-				var lastLine = vscode.window.activeTextEditor.document.lineAt(lineCount - 1);
-				var endOfLastLine = lastLine.range.end;
-				
-				//replace text
-				var textDocument = vscode.window.activeTextEditor.document.getText();
-				var replacementCount = countMatches(textDocument, userInput.search);
-				var replacementDocument = replaceAll(textDocument, userInput.search, replacementString);
-				
-				//replce whole document
-				editor.replace(new vscode.Range(new vscode.Position(0, 0), new vscode.Position(endOfLastLine.line, endOfLastLine.character)), replacementDocument);
-				
-				//show info to user
-				vscode.window.showInformationMessage("replaced "+replacementCount);
+		vscode.window.showQuickPick(actions).then(function(searchType){
+			console.log(searchType);
+
+			getUserInput().then(function(userInput: UserInput) {
+				vscode.window.showInformationMessage(userInput.search + " to " + userInput.replace);
+				// Display a message box to the user
+				var replacementString = userInput.replace.split("\\r").join("\r").split("\\n").join("\n").split("\\t").join("\t");
+				vscode.window.activeTextEditor.edit((editor: vscode.TextEditorEdit) => {
+					//get metainfos of document
+					var lineCount = vscode.window.activeTextEditor.document.lineCount;
+					var lastLine = vscode.window.activeTextEditor.document.lineAt(lineCount - 1);
+					var endOfLastLine = lastLine.range.end;
+					
+					//replace text
+					var textDocument = vscode.window.activeTextEditor.document.getText();
+					var replacement: Replacement;
+					switch(searchType) {
+						case normalSearch: replacement = replaceAll(textDocument, userInput.search, replacementString, false, false, false); break;
+						case caseSensitiveSearch: replacement = replaceAll(textDocument, userInput.search, replacementString, true, false, false); break;
+						case wholeWordsSearch: replacement = replaceAll(textDocument, userInput.search, replacementString, false, true, false); break;
+						case regexSearch: replacement = replaceAll(textDocument, userInput.search, replacementString, false, false, true); break;
+						case caseSensitiveAndWholeWordsSearch: replacement = replaceAll(textDocument, userInput.search, replacementString, true, true, false); break;
+						case caseSensitiveAndRegexSearch: replacement = replaceAll(textDocument, userInput.search, replacementString, true, false, true); break;
+						case wholeWordsAndRegexSearch: replacement = replaceAll(textDocument, userInput.search, replacementString, false, true, true); break;
+						case caseSensitiveWholeWordsRegexSearch: replacement = replaceAll(textDocument, userInput.search, replacementString, true, true, true); break;
+						default: replacement = null; break;
+					}
+					if(replacement != null) {
+						var replacementCount = replacement.count;
+						var replacementDocument = replacement.text;
+						
+						//replce whole document
+						editor.replace(new vscode.Range(new vscode.Position(0, 0), new vscode.Position(endOfLastLine.line, endOfLastLine.character)), replacementDocument);
+						
+						//show info to user
+						vscode.window.showInformationMessage("replaced "+replacementCount);
+					}
+					else {
+						throw "hello";
+					}
+					
+				});
 			});
-		
-		
 		});
+		
+		
 		
 		return;
 	});
