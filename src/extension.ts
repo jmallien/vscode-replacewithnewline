@@ -1,5 +1,3 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode'; 
 
 interface UserInput {
@@ -23,24 +21,37 @@ function getUserInput() {
 		};
 		vscode.window.showInputBox(findStringInputOpts).then((findString)=>{
 			if(typeof findString !== 'undefined') {
-				var replaceStringInputOpts: vscode.InputBoxOptions = {
-					password: false,
-					placeHolder: "text and/or \\r \\n \\t",
-					prompt: "Replace",
-					value: ""
-				};
-				vscode.window.showInputBox(replaceStringInputOpts).then((replaceString)=>{
-					if (typeof replaceString !== 'undefined') {
-						var userInput: UserInput = {search: findString, replace: replaceString};
-						resolve(userInput);
-					}
-					else {
-						reject(Error("user canceled in replace"));
-					}
-				});
+				if(findString !== '') {
+					var replaceStringInputOpts: vscode.InputBoxOptions = {
+						password: false,
+						placeHolder: "text and/or \\r \\n \\t",
+						prompt: "Replace",
+						value: ""
+					};
+					vscode.window.showInputBox(replaceStringInputOpts).then((replaceString)=>{
+						if (typeof replaceString !== 'undefined') {
+							var userInput: UserInput = {search: findString, replace: replaceString};
+							resolve(userInput);
+						}
+						else {
+							var error: Error = new Error("user canceled in replace");
+							error.name = "CancelError";
+							reject(error);
+						}
+					});
+				}
+				else {
+					var error: Error = new Error("search expression was empty");
+					error.name = "EmptyError";
+					reject(error);
+				}
+				
+				
 			}
 			else {
-				reject(Error("user canceled in find"));
+				var error: Error = new Error("user canceled in find");
+				error.name = "CancelError";
+				reject(error);
 			}
 		});
 	});
@@ -114,8 +125,6 @@ export function activate(context: vscode.ExtensionContext) {
 		];
 
 		vscode.window.showQuickPick(actions).then(function(searchType){
-			console.log(searchType);
-
 			getUserInput().then(function(userInput: UserInput) {
 				vscode.window.showInformationMessage(userInput.search + " to " + userInput.replace);
 				// Display a message box to the user
@@ -151,10 +160,15 @@ export function activate(context: vscode.ExtensionContext) {
 						vscode.window.showInformationMessage("replaced "+replacementCount);
 					}
 					else {
-						throw "hello";
+						vscode.window.showErrorMessage("Unknown Error");
 					}
 					
 				});
+			}).catch(function(error: Error) {
+				switch(error.name) {
+					case "CancelError": console.log("user canceled: " + error.message); break;
+					default: vscode.window.showErrorMessage(error.message); break; 
+				}
 			});
 		});
 		
