@@ -75,18 +75,6 @@ function replaceAll(haystack: string, needle: string, replacementNeedle: string,
   }
 }
 
-function countMatches(haystack, needle) {
-  return haystack.match(new RegExp(escapeRegExp(needle), 'g')).length;
-}
-
-function replaceAllCaseInsensitive(haystack, needle, replacementNeedle) {
-  return haystack.replace(new RegExp(escapeRegExp(needle), 'ig'), replacementNeedle);
-}
-
-function countMatchesCaseInsensitive(haystack, needle) {
-  return haystack.match(new RegExp(escapeRegExp(needle), 'ig')).length;
-}
-
 function escapeRegExp(str) {
     return str.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1");
 }
@@ -98,21 +86,21 @@ export function activate(context: vscode.ExtensionContext) {
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
 	console.log("search'n'replace with newline loaded!");
 	
-		var normalSearch: vscode.QuickPickItem = {label: "normal search", description: "finds 'foo' in 'xyzFoOabc'"};
-		var caseSensitiveSearch: vscode.QuickPickItem = {label: "case sensitive", description: "does not find 'foo' in 'xyzFoOabc' but in 'xyzfooabc'"};
-		var wholeWordsSearch: vscode.QuickPickItem = {label: "whole words", description: "does not find 'foo' in 'xyzFoOabc' but in 'xyz FoO abc'"};
-		var regexSearch: vscode.QuickPickItem = {label: "regex", description: "[a-z] finds all letters, even capitals"};
-		var caseSensitiveAndWholeWordsSearch: vscode.QuickPickItem = {label: "case sensitive and whole words", description: "same as whole words but case sensitive"};
-		var caseSensitiveAndRegexSearch: vscode.QuickPickItem = {label: "case sensitive and regex", description: "[a-z] finds only small letters"};
-		var wholeWordsAndRegexSearch: vscode.QuickPickItem = {label: "whole words and regex", description: "same as regex but surrounds it with \\b"};
-		var caseSensitiveWholeWordsRegexSearch: vscode.QuickPickItem = {label: "case sensitive, whole words and regex", description: "everything at once"};
+	//define all searchTypes
+	var normalSearch: vscode.QuickPickItem = {label: "normal search", description: "finds 'foo' in 'xyzFoOabc'"};
+	var caseSensitiveSearch: vscode.QuickPickItem = {label: "case sensitive", description: "does not find 'foo' in 'xyzFoOabc' but in 'xyzfooabc'"};
+	var wholeWordsSearch: vscode.QuickPickItem = {label: "whole words", description: "does not find 'foo' in 'xyzFoOabc' but in 'xyz FoO abc'"};
+	var regexSearch: vscode.QuickPickItem = {label: "regex", description: "[a-z] finds all letters, even capitals"};
+	var caseSensitiveAndWholeWordsSearch: vscode.QuickPickItem = {label: "case sensitive and whole words", description: "same as whole words but case sensitive"};
+	var caseSensitiveAndRegexSearch: vscode.QuickPickItem = {label: "case sensitive and regex", description: "[a-z] finds only small letters"};
+	var wholeWordsAndRegexSearch: vscode.QuickPickItem = {label: "whole words and regex", description: "same as regex but surrounds it with \\b"};
+	var caseSensitiveWholeWordsRegexSearch: vscode.QuickPickItem = {label: "case sensitive, whole words and regex", description: "everything at once"};
 	
 	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with  registerCommand
-	// The commandId parameter must match the command field in package.json
-	var disposable = vscode.commands.registerCommand('extension.searchNReplaceNormal', () => {
+	var disposable = vscode.commands.registerCommand('extension.searchNReplace', () => {
 		// The code you place here will be executed every time your command is executed
 
+		//available actions
 		var actions = [
 			normalSearch,
 			caseSensitiveSearch,
@@ -171,8 +159,6 @@ export function activate(context: vscode.ExtensionContext) {
 				}
 			});
 		});
-		
-		
 		
 		return;
 	});

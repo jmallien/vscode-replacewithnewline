@@ -10,19 +10,12 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:extension.searchNReplaceNormal",
-		"onCommand:extension.searchNReplaceCS",
-		"onCommand:extension.searchNReplaceWW",
-		"onCommand:extension.searchNReplaceR",
-		"extension.searchNReplaceCSWW",
-		"extension.searchNReplaceCSR",
-		"extension.searchNReplaceWWR",
-		"extension.searchNReplaceCSWWR"
+		"onCommand:extension.searchNReplace"
 	],
 	"main": "./out/src/extension",
 	"contributes": {
 		"commands": [{
-			"command": "extension.searchNReplaceNormal",
+			"command": "extension.searchNReplace",
 			"title": "search'n'replace with newline support"
 		}]
 	},
