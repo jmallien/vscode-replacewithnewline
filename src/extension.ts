@@ -15,7 +15,7 @@ function getUserInput() {
 		// do a thing, possibly async, then…
 		var findStringInputOpts: vscode.InputBoxOptions = {
 			password: false,
-			placeHolder: "suche nach",
+			placeHolder: "search-term",
 			prompt: "Find",
 			value: ""
 		};
@@ -60,18 +60,23 @@ function getUserInput() {
 }
 
 function replaceAll(haystack: string, needle: string, replacementNeedle: string, caseMatters: boolean, wholeWords: boolean, isRegex: boolean): Replacement {
+  //prepare search term
   if(!isRegex) {
-	  needle = escapeRegExp(needle);
+	  needle = escapeRegExp(needle); //escape special chars
   }
   if(wholeWords) {
-	  needle = "\\b"+needle+"\\b";
+	  needle = "\\b"+needle+"\\b"; //surround with wordboundary
   }
+  var regExFlags = caseMatters?'gm':'igm'; //global, multiline and maybe caseinsensitive
   
-  var regExFlags = caseMatters?'g':'ig';
+  //do replacement
+  var replacementText = haystack.replace(new RegExp(needle, regExFlags), replacementNeedle);
+  var matches = haystack.match(new RegExp(needle, regExFlags)); //undefined if no matches
+  var replacementCount = matches?matches.length:0;
   
   return {
-	  text: haystack.replace(new RegExp(needle, regExFlags), replacementNeedle),
-	  count: haystack.match(new RegExp(needle, regExFlags)).length || 0
+	  text: replacementText,
+	  count: replacementCount
   }
 }
 
@@ -97,7 +102,7 @@ export function activate(context: vscode.ExtensionContext) {
 	var caseSensitiveWholeWordsRegexSearch: vscode.QuickPickItem = {label: "case sensitive, whole words and regex", description: "everything at once"};
 	
 	// The command has been defined in the package.json file
-	var disposable = vscode.commands.registerCommand('extension.searchNReplace', () => {
+	var disposable = vscode.commands.registerCommand('extension.replaceWithNewline', () => {
 		// The code you place here will be executed every time your command is executed
 
 		//available actions
@@ -114,7 +119,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 		vscode.window.showQuickPick(actions).then(function(searchType){
 			getUserInput().then(function(userInput: UserInput) {
-				vscode.window.showInformationMessage(userInput.search + " to " + userInput.replace);
+				console.log(userInput.search + " to " + userInput.replace);
 				// Display a message box to the user
 				var replacementString = userInput.replace.split("\\r").join("\r").split("\\n").join("\n").split("\\t").join("\t");
 				vscode.window.activeTextEditor.edit((editor: vscode.TextEditorEdit) => {
@@ -142,10 +147,12 @@ export function activate(context: vscode.ExtensionContext) {
 						var replacementDocument = replacement.text;
 						
 						//replce whole document
-						editor.replace(new vscode.Range(new vscode.Position(0, 0), new vscode.Position(endOfLastLine.line, endOfLastLine.character)), replacementDocument);
+						if(replacementCount > 0) {
+							editor.replace(new vscode.Range(new vscode.Position(0, 0), new vscode.Position(endOfLastLine.line, endOfLastLine.character)), replacementDocument);
+						}
 						
 						//show info to user
-						vscode.window.showInformationMessage("replaced "+replacementCount);
+						vscode.window.showInformationMessage("replaced " + replacementCount + " occurences");
 					}
 					else {
 						vscode.window.showErrorMessage("Unknown Error");

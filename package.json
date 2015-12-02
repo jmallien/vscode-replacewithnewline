@@ -1,8 +1,20 @@
 {
-	"name": "SNRWN",
+	"name": "ReplaceWithNewline",
 	"description": "search'n'replace including newlines and tabs in your open file from VSCode commandline",
 	"version": "0.0.1",
-	"publisher": "Jens Mallien",
+	"publisher": "jmallien",
+	"displayName": "ReplaceWithNewline",
+	"keywords": [
+		"find",
+		"search",
+		"replace",
+		"return",
+		"newline",
+		"linefeed",
+		"carrigereturn",
+		"tab",
+		"tabulator"
+	],
 	"engines": {
 		"vscode": "^0.10.1"
 	},
@@ -10,12 +22,12 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:extension.searchNReplace"
+		"onCommand:extension.replaceWithNewline"
 	],
 	"main": "./out/src/extension",
 	"contributes": {
 		"commands": [{
-			"command": "extension.searchNReplace",
+			"command": "extension.replaceWithNewline",
 			"title": "search'n'replace with newline support"
 		}]
 	},
